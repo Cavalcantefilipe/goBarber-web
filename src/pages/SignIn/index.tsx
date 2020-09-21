@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useContext } from 'react';
+import React, { useCallback, useState } from 'react';
 import { FiLogIn, FiMail, FiLock } from 'react-icons/fi';
 import logoImg from '../../assets/logo.svg';
 import Input from '../../components/Input';
@@ -7,32 +7,38 @@ import { useForm } from 'react-hook-form';
 import { Container, Content, Background } from './styles';
 import * as Yup from 'yup';
 import validationErrors from '../../utils/getValidationErrors';
-import { AuthContext } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/AuthContext';
 
 const SignIn: React.FC = () => {
   const { handleSubmit, register } = useForm();
   const [errors, setErrors] = useState({});
 
-  const { name } = useContext(AuthContext);
+  const { signIn } = useAuth();
 
-  console.log(name);
+  const onSubmit = useCallback(
+    async data => {
+      try {
+        setErrors({});
+        const schema = Yup.object().shape({
+          email: Yup.string()
+            .required('E-mail obrigatório')
+            .email('Digite um e-mail válido'),
+          password: Yup.string().required('Senha obrigatória'),
+        });
 
-  const onSubmit = useCallback(async (data: object) => {
-    try {
-      setErrors({});
-      const schema = Yup.object().shape({
-        email: Yup.string()
-          .required('E-mail obrigatório')
-          .email('Digite um e-mail válido'),
-        password: Yup.string().required('Senha obrigatória'),
-      });
+        await schema.validate(data, { abortEarly: false });
 
-      await schema.validate(data, { abortEarly: false });
-    } catch (err) {
-      let newErrors = validationErrors(err);
-      setErrors(newErrors);
-    }
-  }, []);
+        signIn({
+          email: data.email,
+          password: data.password,
+        });
+      } catch (err) {
+        let newErrors = validationErrors(err);
+        setErrors(newErrors);
+      }
+    },
+    [signIn],
+  );
 
   return (
     <Container>
