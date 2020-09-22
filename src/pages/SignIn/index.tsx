@@ -7,13 +7,15 @@ import { useForm } from 'react-hook-form';
 import { Container, Content, Background } from './styles';
 import * as Yup from 'yup';
 import validationErrors from '../../utils/getValidationErrors';
-import { useAuth } from '../../hooks/AuthContext';
+import { useAuth } from '../../hooks/auth';
+import { useToast } from '../../hooks/toast';
 
 const SignIn: React.FC = () => {
   const { handleSubmit, register } = useForm();
   const [errors, setErrors] = useState({});
 
   const { signIn } = useAuth();
+  const { addToast } = useToast();
 
   const onSubmit = useCallback(
     async data => {
@@ -28,16 +30,23 @@ const SignIn: React.FC = () => {
 
         await schema.validate(data, { abortEarly: false });
 
-        signIn({
+        await signIn({
           email: data.email,
           password: data.password,
         });
       } catch (err) {
-        let newErrors = validationErrors(err);
-        setErrors(newErrors);
+        if (err instanceof Yup.ValidationError) {
+          let newErrors = validationErrors(err);
+          setErrors(newErrors);
+        }
+        addToast({
+          type: 'error',
+          title: 'Erro na autenticação',
+          description: 'Ocorreu um erro ao fazer login, cheque as credenciais',
+        });
       }
     },
-    [signIn],
+    [signIn, addToast],
   );
 
   return (
