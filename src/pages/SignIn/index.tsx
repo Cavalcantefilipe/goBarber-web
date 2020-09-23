@@ -4,15 +4,17 @@ import logoImg from '../../assets/logo.svg';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { useForm } from 'react-hook-form';
-import { Container, Content, Background } from './styles';
 import * as Yup from 'yup';
+import { Link, useHistory } from 'react-router-dom';
 import validationErrors from '../../utils/getValidationErrors';
 import { useAuth } from '../../hooks/auth';
 import { useToast } from '../../hooks/toast';
+import { Container, Content, Background, AnimationContainer } from './styles';
 
 const SignIn: React.FC = () => {
   const { handleSubmit, register } = useForm();
   const [errors, setErrors] = useState({});
+  const history = useHistory();
 
   const { signIn } = useAuth();
   const { addToast } = useToast();
@@ -34,10 +36,13 @@ const SignIn: React.FC = () => {
           email: data.email,
           password: data.password,
         });
+
+        history.push('/dashboard');
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           let newErrors = validationErrors(err);
           setErrors(newErrors);
+          return;
         }
         addToast({
           type: 'error',
@@ -46,41 +51,43 @@ const SignIn: React.FC = () => {
         });
       }
     },
-    [signIn, addToast],
+    [signIn, addToast, history],
   );
 
   return (
     <Container>
       <Content>
-        <img src={logoImg} alt="GoBarber" />
+        <AnimationContainer>
+          <img src={logoImg} alt="GoBarber" />
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <h1>Faça seu logon</h1>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <h1>Faça seu logon</h1>
 
-          <Input
-            icon={FiMail}
-            name="email"
-            placeholder="E-mail"
-            register={register}
-            error={errors && errors}
-          />
-          <Input
-            icon={FiLock}
-            name="password"
-            placeholder="Senha"
-            type="password"
-            register={register}
-            error={errors && errors}
-          />
-          <Button type="submit"> Entrar</Button>
+            <Input
+              icon={FiMail}
+              name="email"
+              placeholder="E-mail"
+              register={register}
+              error={errors && errors}
+            />
+            <Input
+              icon={FiLock}
+              name="password"
+              placeholder="Senha"
+              type="password"
+              register={register}
+              error={errors && errors}
+            />
+            <Button type="submit"> Entrar</Button>
 
-          <a href="forgot"> Esqueci minha Senha </a>
-        </form>
+            <a href="forgot"> Esqueci minha Senha </a>
+          </form>
 
-        <a href="login">
-          <FiLogIn />
-          Criar conta
-        </a>
+          <Link to="/signup">
+            <FiLogIn />
+            Criar conta
+          </Link>
+        </AnimationContainer>
       </Content>
       <Background />
     </Container>
