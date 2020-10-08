@@ -11,6 +11,7 @@ interface InputProps
   icon: React.ComponentType<IconBaseProps>;
   name: string;
   error?: any;
+  containerStyle?: Object;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -19,6 +20,7 @@ const Input: React.FC<InputProps> = ({
   register,
   error,
   icon: Icon,
+  containerStyle,
   ...rest
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -31,6 +33,7 @@ const Input: React.FC<InputProps> = ({
 
   return (
     <Conteiner
+      style={containerStyle}
       isErrored={!!error[name]}
       isFilled={isFilled}
       isFocused={isFocused}
